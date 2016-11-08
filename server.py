@@ -4,6 +4,7 @@ from tornado.web import Application, FallbackHandler
 from tornado.websocket import WebSocketHandler
 from tornado.ioloop import IOLoop
 
+
 class WebSocket(WebSocketHandler):
     def open(self):
         print("User connected")
@@ -14,10 +15,6 @@ class WebSocket(WebSocketHandler):
 
     def on_close(self):
         print("User disconnected")
-
-    def test(self, msg):
-        print('User tested')
-        self.write_message('Test complete')
 
 if __name__ == "__main__":
     container = WSGIContainer(app)
