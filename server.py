@@ -6,14 +6,18 @@ from tornado.ioloop import IOLoop
 
 class WebSocket(WebSocketHandler):
     def open(self):
-        print("Socket opened.")
+        print("User connected")
 
     def on_message(self, message):
-        self.write_message("Received: " + message)
-        print("Received message: " + message)
+        print('User sent: {}'.format(message))
+        self.write_message('You sent: {}'.format(message))
 
     def on_close(self):
-        print("Socket closed.")
+        print("User disconnected")
+
+    def test(self, msg):
+        print('User tested')
+        self.write_message('Test complete')
 
 if __name__ == "__main__":
     container = WSGIContainer(app)

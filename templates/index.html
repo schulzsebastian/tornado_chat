@@ -4,8 +4,33 @@
     <title>Tornado Chat</title>
     <meta charset="utf-8">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.5.1/socket.io.js"></script>
   </head>
   <body>
-    Hello!
+    <div id="app">
+      <input type="text" v-model="input"><br>
+      <button v-on:click="sendMessage">Send message</button><br>
+      <div v-for="message in messages">
+        <p v-text="message"></p>
+      </div>
+    </div>
   </body>
+  <script>
+    var vm = new Vue({
+      el: "#app",
+      data: {
+        messages: [],
+        input: ""
+      },
+      methods: {
+        sendMessage: function(){
+          socket.send(this.input)
+        }
+      }
+    })
+    var socket = new WebSocket("ws://" + document.domain + ":5000/websocket/");
+    socket.onmessage = function(e) {
+      vm.messages.push(e.data)
+    }
+  </script>
 </html>
