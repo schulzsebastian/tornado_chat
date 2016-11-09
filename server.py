@@ -20,6 +20,7 @@ class WebSocket(WebSocketHandler):
                 client.write_message('You sent: {}'.format(message))
 
     def on_close(self):
+        self.clients.remove(self)
         print("User disconnected")
 
 if __name__ == "__main__":
