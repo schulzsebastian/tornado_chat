@@ -54,7 +54,7 @@
         messages: ["Message"]
       }
     })
-    var socket = new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/");
+    var socket = new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/"+location.search.split('room=')[1]);
     socket.onmessage = function(e) {
       vm.messages.push(e.data)
     }
