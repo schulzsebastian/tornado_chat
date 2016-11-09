@@ -25,10 +25,11 @@ class WebSocket(WebSocketHandler):
         self.clients.remove(self)
         print("User disconnected")
 
+
 def test_messages():
+    msg = ''.join(random.choice(string.ascii_lowercase) for i in range(5))
     for client in WebSocket.clients:
-        client.write_message(
-            ''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+        client.write_message('Server message: {}'.format(msg))
 
 if __name__ == "__main__":
     container = WSGIContainer(app)
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     main_loop = IOLoop.instance()
     event_test_messages = PeriodicCallback(
         test_messages,
-        3000,
+        500,
         io_loop=main_loop)
     event_test_messages.start()
     main_loop.start()

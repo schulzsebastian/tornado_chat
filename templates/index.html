@@ -4,42 +4,18 @@
     <title>Tornado Chat</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.js"></script>
   </head>
   <body>
-    <style>
-    #main {
-      height: 100vh;
-      padding: 0;
-    }
-    #sidebar {
-      height: 100vh;
-      background-color: #d3d3d3;
-      overflow-x: auto;
-    }
-    #window {
-      height: 80vh;
-      position: relative;
-      overflow-x: auto;
-    }
-    #window #messages {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-    }
-    #type_box {
-      height: 20vh;
-      background-color: #696969;
-    }
-    </style>
     <div id="chat">
-      <div id="main" class="col-xs-8" style="padding:0">
+      <div id="main" class="col-xs-8">
         <div id="window" class="col-xs-12">
           <div id="messages">
-            <div v-for="message in messages">
-              <p v-text="message">Message</p>
+            <div id="message" v-for="message in messages">
+              <span v-text="message"></span><br>
             </div>
           </div>
         </div>
@@ -54,12 +30,21 @@
     var vm = new Vue({
       el: "#chat",
       data: {
-        messages: ["Message"]
+        messages: []
+      },
+      methods: {
+        addMessage: function(msg) {
+          this.messages.push(msg)
+          setTimeout(function(){$("#messages").scrollTop($("#messages")[0].scrollHeight)}, 0)
+        }
+      },
+      created: function() {
+        var self = this
+        var socket = new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/"+location.search.split('room=')[1]);
+        socket.onmessage = function(e) {
+          self.addMessage(e.data)
+        }
       }
     })
-    var socket = new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/"+location.search.split('room=')[1]);
-    socket.onmessage = function(e) {
-      vm.messages.push(e.data)
-    }
   </script>
 </html>
