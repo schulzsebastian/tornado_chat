@@ -3,32 +3,58 @@
   <head>
     <title>Tornado Chat</title>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.5.1/socket.io.js"></script>
   </head>
   <body>
-    <div id="app">
-      <input type="text" v-model="input"><br>
-      <button v-on:click="sendMessage">Send message</button><br>
-      <div v-for="message in messages">
-        <p v-text="message"></p>
+    <style>
+    #main {
+      height: 100vh;
+    }
+    #sidebar {
+      height: 100vh;
+      background-color: #d3d3d3;
+      overflow-x: auto;
+    }
+    #window {
+      height: 80vh;
+      position: relative;
+      overflow-x: auto;
+    }
+    #window #messages {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+    #type_box {
+      height: 20vh
+      background-color: #696969
+    }
+    </style>
+    <div id="chat">
+      <div id="main" class="col-xs-8">
+        <div id="window" class="col-xs-12">
+          <div id="messages" v-for="message in messages">
+            <div v-text="message">Message</div>
+          </div>
+        </div>
+        <div id="type_box" class="cols-xs-12">
+        </div>
+      </div>
+      <div id="sidebar" class="col-xs-4">
       </div>
     </div>
   </body>
   <script>
     var vm = new Vue({
-      el: "#app",
+      el: "#chat",
       data: {
-        messages: [],
-        input: ""
-      },
-      methods: {
-        sendMessage: function(){
-          socket.send(this.input)
-        }
+        messages: ["Message"]
       }
     })
-    var socket = new WebSocket("ws://" + document.domain + ":5000/websocket/" + location.search.split('room=')[1]);
+    var socket = new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/"+location.search.split('room=')[1]);
     socket.onmessage = function(e) {
       vm.messages.push(e.data)
     }
