@@ -5,18 +5,17 @@ from tornado.websocket import WebSocketHandler
 from tornado.ioloop import IOLoop
 
 
-clients = []
-
-
 class WebSocket(WebSocketHandler):
+    clients = []
+
     def open(self, room):
         self.__room = room
-        clients.append(self)
+        self.clients.append(self)
         print("User connected")
 
     def on_message(self, message):
         print('User sent: {}'.format(message))
-        for client in clients:
+        for client in self.clients:
             if client.__room == self.__room:
                 client.write_message('You sent: {}'.format(message))
 
