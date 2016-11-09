@@ -28,7 +28,7 @@
         }
       }
     })
-    var socket = new WebSocket("ws://" + document.domain + ":5000/websocket/");
+    var socket = new WebSocket("ws://" + document.domain + ":5000/websocket/" + location.search.split('room=')[1]);
     socket.onmessage = function(e) {
       vm.messages.push(e.data)
     }
