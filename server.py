@@ -2,7 +2,9 @@ from app import app
 from tornado.wsgi import WSGIContainer
 from tornado.web import Application, FallbackHandler
 from tornado.websocket import WebSocketHandler
-from tornado.ioloop import IOLoop
+from tornado.ioloop import IOLoop, PeriodicCallback
+import random
+import string
 
 
 class WebSocket(WebSocketHandler):
@@ -23,6 +25,11 @@ class WebSocket(WebSocketHandler):
         self.clients.remove(self)
         print("User disconnected")
 
+def test_messages():
+    for client in WebSocket.clients:
+        client.write_message(
+            ''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+
 if __name__ == "__main__":
     container = WSGIContainer(app)
     server = Application([
@@ -30,4 +37,10 @@ if __name__ == "__main__":
         (r'.*', FallbackHandler, dict(fallback=container))
     ], debug=True)
     server.listen(5000)
-    IOLoop.instance().start()
+    main_loop = IOLoop.instance()
+    event_test_messages = PeriodicCallback(
+        test_messages,
+        3000,
+        io_loop=main_loop)
+    event_test_messages.start()
+    main_loop.start()

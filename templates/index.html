@@ -37,8 +37,10 @@
     <div id="chat">
       <div id="main" class="col-xs-8" style="padding:0">
         <div id="window" class="col-xs-12">
-          <div id="messages" v-for="message in messages">
-            <div v-text="message">Message</div>
+          <div id="messages">
+            <div v-for="message in messages">
+              <p v-text="message">Message</p>
+            </div>
           </div>
         </div>
         <div id="type_box" class="col-xs-12">
