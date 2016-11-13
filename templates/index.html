@@ -3,11 +3,12 @@
   <head>
     <title>Tornado Chat</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/moment/moment.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='node_modules/vue/dist/vue.js') }}"></script>
   </head>
   <body>
     <div id="chat">
@@ -15,11 +16,15 @@
         <div id="window" class="col-xs-12">
           <div id="messages">
             <div id="message" v-for="message in messages">
-              <span v-text="message"></span><br>
+              <span v-text="message.nick + ': ' + message.content" v-bind:title="message.datetime"></span><br>
             </div>
           </div>
         </div>
         <div id="type_box" class="col-xs-12">
+          <div class="input-group">
+            <textarea v-model="input_message" class="form-control custom-control" style="resize:none"></textarea>
+            <span v-on:click="sendMessage" class="input-group-addon btn btn-primary">Send</span>
+          </div>
         </div>
       </div>
       <div id="sidebar" class="col-xs-4">
@@ -29,20 +34,37 @@
   <script>
     var vm = new Vue({
       el: "#chat",
-      data: {
-        messages: []
+      data:{
+        socket: new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/"+location.search.split('room=')[1]),
+        messages: [],
+        input_message: ''
       },
-      methods: {
-        addMessage: function(msg) {
+      methods:{
+        receivePayload: function(msg){
+          data = JSON.parse(msg)
+          if(data.type == 'message'){
+            this.addMessage(data)
+          }
+        },
+        addMessage: function(msg){
           this.messages.push(msg)
           setTimeout(function(){$("#messages").scrollTop($("#messages")[0].scrollHeight)}, 0)
+        },
+        sendMessage: function(){
+          if(this.input_message){
+            this.socket.send(JSON.stringify({
+              type: 'message',
+              content: this.input_message,
+              nick: 'test',
+              datetime: moment().format('DD-MM-YYYY HH:mm')
+            }))
+          }
         }
       },
-      created: function() {
+      created: function(){
         var self = this
-        var socket = new WebSocket("ws://"+document.domain+":"+location.port+"/websocket/"+location.search.split('room=')[1]);
-        socket.onmessage = function(e) {
-          self.addMessage(e.data)
+        self.socket.onmessage = function(e){
+          self.receivePayload(e.data)
         }
       }
     })
